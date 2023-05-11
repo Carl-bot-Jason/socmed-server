@@ -209,15 +209,14 @@ async function getCommunities(req, res, next){
 				final.popular = popular[0];
 			}
 			else{
-				let recommended = await con.execute('CALL getRecommendedCommunities(?)', [username]);
-				final.recommended = recommended[0][0];
+				// let recommended = await con.execute('CALL getRecommendedCommunities(?)', [username]);
+				// final.recommended = recommended[0][0];
 				let discover = await con.execute('SELECT * FROM community ORDER BY create_date DESC LIMIT 10');
 				final.discover = discover[0];
-				let popular = await con.execute('CALL getPopularCommunities(?)', [username]);
-				final.popular = popular[0][0];
+				// let popular = await con.execute('CALL getPopularCommunities(?)', [username]);
+				// final.popular = popular[0][0];
 			}
 			res.status(200).json(final);
-			// console.log(final);
 		}
 		else{
 			res.status(400).send({error: "Bad Request"});

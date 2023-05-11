@@ -27,4 +27,5 @@ connect_db()
 })
 .catch(err => {
 	console.log('Database connection failed');
+	console.log(err);
 });
