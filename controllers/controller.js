@@ -311,7 +311,6 @@ async function postHomePost(req, res, next){
 			'INSERT INTO home_post VALUES (DEFAULT, ?, DEFAULT, DEFAULT, ?)',
 			[req.query.communityid, req.body.description]
 		);
-		console.log(req.body);
 		if(req.body.files.length){
 			let query = 'INSERT INTO home_media VALUES';
 			let arg_array = [];
