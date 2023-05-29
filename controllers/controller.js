@@ -45,7 +45,7 @@ async function postLogin(req, res, next){
 		}
 		let jwt = await createJWT(req.body.username);
 		res.clearCookie('token')
-		.cookie('token', jwt, {expires: new Date(Date.now() + 60 * 1000 * 86400), Secure: true})
+		.cookie('token', jwt, {expires: new Date(Date.now() + 60 * 1000 * 86400), Secure: true, Path: "/", SameSite: 'None'})
 		.status(200)
 		.send({response: "Login successful"});
 	}
