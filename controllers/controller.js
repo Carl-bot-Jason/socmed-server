@@ -23,7 +23,6 @@ async function postLogin(req, res, next){
 	try{
 		let con = await connection();
 		res = setHeaders(res);
-		res.set('Access-Control-Allow-Headers', 'Access-Control-Allow-Origin');
 		let [rows, _] = await con.execute(
 			'SELECT * FROM user WHERE username = ?',
 			[req.body.username]
@@ -39,7 +38,7 @@ async function postLogin(req, res, next){
 		}
 		let jwt = await createJWT(req.body.username);
 		res
-		.cookie('token', jwt, {expires: new Date(Date.now() + 60 * 1000 * 86400), path: "/", SameSite: 'Strict'})
+		.cookie('token', jwt, {expires: new Date(Date.now() + 60 * 1000 * 86400), path: "/", domain: process.env.DOMAIN})
 		.status(200)
 		.send({response: "Login successful"});
 	}
@@ -415,7 +414,6 @@ async function getAdmin(req, res, next){
 		res = setHeaders(res);
 		let getUser = await getUsernameInternal(req);
 		let username;
-		res = setHeaders(res);
 		if(!req.query.communityid){
 			res.status(400).send({error: "Bad Request"});
 			return;
@@ -495,13 +493,7 @@ async function updateBanner(req, res, next){
 async function getFeedPosts(req, res, next){
 	try {
 		let con = await connection();
-		res = setHeaders(res);
-		let getUser = await getUsernameInternal(req);
-		let final = {};
-		if(getUser.error){
-			res.status(400).send(getUser.error);
-			return;
-		}
+		let final = {};	
 		let [rows, columns] = await con.execute(
 			'SELECT * FROM feed_post WHERE community_id=?',
 			[req.query.communityid]
