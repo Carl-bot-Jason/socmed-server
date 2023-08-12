@@ -1,11 +1,12 @@
 const connection = require('../db/connect');
-const {hashFunction, getUsernameInternal, createJWT, verifyHash, verifyJWT} = require('./helper');
+const {hashFunction, getUsernameInternal, createJWT, verifyHash, verifyJWT, setHeaders} = require('./helper');
 require('dotenv').config();
 
 async function getUsername(req, res, next){
 	try{
 		let token = /token=(.+)/.exec(req.headers.cookie)[1];
 		let decoded = await verifyJWT(token);
+		res = setHeaders(res);
 		if(decoded.payload){
 			res.status(200).json({username: decoded.payload.username});
 		}
@@ -21,33 +22,24 @@ async function getUsername(req, res, next){
 async function postLogin(req, res, next){
 	try{
 		let con = await connection();
-		console.log(con);
-		let flag = true;
-		let [rows, columns] = await con.execute(
+		res = setHeaders(res);
+		res.set('Access-Control-Allow-Headers', 'Access-Control-Allow-Origin');
+		let [rows, _] = await con.execute(
 			'SELECT * FROM user WHERE username = ?',
 			[req.body.username]
 		);
 		if(!rows.length){
 			res.status(409).send({username: "Username is invalid"});
-			flag = false;
-		};
-
-		if(!flag){
 			return;
-		}
-		flag = true;
-		[rows, columns] = await con.execute(
-			'SELECT hash FROM user WHERE username = ?',
-			[req.body.username]
-		);
+		};
 		let result = await verifyHash(req.body.password, rows[0].hash);
 		if(!result){
 			res.status(409).send({password: "Password is incorrect"});
 			return;
 		}
 		let jwt = await createJWT(req.body.username);
-		res.clearCookie('token')
-		.cookie('token', jwt, {expires: new Date(Date.now() + 60 * 1000 * 86400), path: "/"})
+		res
+		.cookie('token', jwt, {expires: new Date(Date.now() + 60 * 1000 * 86400), path: "/", SameSite: 'Strict'})
 		.status(200)
 		.send({response: "Login successful"});
 	}
@@ -197,6 +189,7 @@ async function getCommunities(req, res, next){
 	try {
 		let con = await connection();
 		let final = {}, username = null;
+		res = setHeaders(res);
 		let getUser = await getUsernameInternal(req);
 		if(getUser.username){
 			username = getUser.username;
@@ -231,6 +224,7 @@ async function getCommunities(req, res, next){
 async function getRecentCommunities(req, res, next){
 	try{
 		let con = await connection();
+		res = setHeaders(res);
 		let getUser = await getUsernameInternal(req);
 		if(getUser.error){
 			res.status(404).send(getUser.error);
@@ -304,6 +298,7 @@ async function getHomePosts(req, res, next){
 async function postHomePost(req, res, next){
 	try {
 		let con = await connection();
+		res = setHeaders(res);
 		let getUser = await getUsernameInternal(req);
 		if(getUser.error){
 			res.status(400).send(getUser.error);
@@ -333,6 +328,7 @@ async function postHomePost(req, res, next){
 async function getMember(req, res, next){
 	try {
 		let con = await connection();
+		res = setHeaders(res);
 		let getUser = await getUsernameInternal(req);
 		let username;
 		if(!req.query.communityid){
@@ -363,6 +359,7 @@ async function getMember(req, res, next){
 async function setMember(req, res, next){
 	try {
 		let con = await connection();
+		res = setHeaders(res);
 		let getUser = await getUsernameInternal(req);
 		let username = "";
 		if(!req.query.communityid){
@@ -388,6 +385,7 @@ async function setMember(req, res, next){
 async function deleteMember(req, res, next){
 	try {
 		let con = await connection();
+		res = setHeaders(res);
 		let getUser = await getUsernameInternal(req);
 		let username = "";
 		if(!req.query.communityid){
@@ -414,8 +412,10 @@ async function getAdmin(req, res, next){
 	try{
 		let con = await connection();
 		let final = {admin: false};
+		res = setHeaders(res);
 		let getUser = await getUsernameInternal(req);
 		let username;
+		res = setHeaders(res);
 		if(!req.query.communityid){
 			res.status(400).send({error: "Bad Request"});
 			return;
@@ -495,6 +495,7 @@ async function updateBanner(req, res, next){
 async function getFeedPosts(req, res, next){
 	try {
 		let con = await connection();
+		res = setHeaders(res);
 		let getUser = await getUsernameInternal(req);
 		let final = {};
 		if(getUser.error){
@@ -512,7 +513,7 @@ async function getFeedPosts(req, res, next){
 		);
 		final.posts = final.posts.map(post => {
 			return {...post, media: rows.filter(obj => obj.post_id === post.id)};
-		});dist
+		});
 		res.status(200).send(final);
 	}
 	catch (err) {
@@ -523,6 +524,7 @@ async function getFeedPosts(req, res, next){
 async function postFeedPost(req, res, next){
 	try {
 		let con = await connection();
+		res = setHeaders(res);
 		let getUser = await getUsernameInternal(req);
 		if(getUser.error){
 			res.status(400).send(getUser.error);
@@ -552,6 +554,7 @@ async function postFeedPost(req, res, next){
 async function getFollow(req, res, next){
 	try {
 		let con = await connection();
+		res = setHeaders(res);
 		let getUser = await getUsernameInternal(req);
 		if(getUser.error){
 			res.status(200).send(getUser.error);
@@ -580,6 +583,7 @@ async function getFollow(req, res, next){
 async function setFollow(req, res, next){
 	try {
 		let con = await connection();
+		res = setHeaders(res);
 		let getUser = await getUsernameInternal(req);
 		if(getUser.error){
 			res.status(400).send(getUser.error);
@@ -603,6 +607,7 @@ async function setFollow(req, res, next){
 async function deleteFollow(req, res, next){
 	try {
 		let con = await connection();
+		res = setHeaders(res);
 		let getUser = await getUsernameInternal(req);
 		if(getUser.error){
 			res.status(400).send(getUser.error);

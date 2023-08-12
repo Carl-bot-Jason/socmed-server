@@ -61,10 +61,22 @@ async function getUsernameInternal(req){
 	}
 }
 
+function setHeaders(res){
+	try{
+		res.set('Access-Control-Allow-Origin', process.env.ORIGIN);
+		res.set('Access-Control-Allow-Credentials', 'true');
+		return res;
+	}
+	catch(err){
+		throw {error: "Couldn't set access control headers"};
+	}
+}
+
 module.exports = {
 	hashFunction,
 	verifyHash,
 	createJWT,
 	verifyJWT,
-	getUsernameInternal
+	getUsernameInternal,
+	setHeaders
 };
