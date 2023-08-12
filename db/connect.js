@@ -13,7 +13,7 @@ async function connect(){
       ca: await fs.readFile(path.resolve(__dirname, '../cacert.pem'), 'utf-8')
     }
   });
-return connection;
+  return connection;
 }
 
 module.exports = connect;

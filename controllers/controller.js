@@ -1,4 +1,4 @@
-const connection = require('../db/connect')();
+const connection = require('../db/connect');
 const {hashFunction, getUsernameInternal, createJWT, verifyHash, verifyJWT} = require('./helper');
 
 async function getUsername(req, res, next){
