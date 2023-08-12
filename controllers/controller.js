@@ -19,7 +19,7 @@ async function getUsername(req, res, next){
 
 async function postLogin(req, res, next){
 	try{
-		let con = connection;
+		let con = await connection;
 		let flag = true;
 		let [rows, columns] = await con.execute(
 			'SELECT * FROM user WHERE username = ?',
@@ -56,7 +56,7 @@ async function postLogin(req, res, next){
 
 async function postSignup(req, res, next){
 	try{
-		let con = connection;
+		let con = await connection;
 		let flag = true;
 		let [rows, columns] = await con.execute(
 			'SELECT * FROM user WHERE username = ?',
@@ -97,7 +97,7 @@ async function postSignup(req, res, next){
 
 async function getProfile(req, res, next){
 	try{
-		let con = connection;
+		let con = await connection;
 		if(!req.query.user){
 			res.status(400).send({error: "Invalid request"});
 			return;
@@ -134,7 +134,7 @@ async function getProfile(req, res, next){
 
 async function createCommunity(req, res, next){
 	try{
-		let con = connection;
+		let con = await connection;
 		let token = /token=(.+)/.exec(req.headers.cookie)[1];
 		let decoded = await verifyJWT(token);
 		let username;
@@ -193,7 +193,7 @@ async function createCommunity(req, res, next){
 
 async function getCommunities(req, res, next){
 	try {
-		let con = connection;
+		let con = await connection();
 		let final = {}, username = null;
 		let getUser = await getUsernameInternal(req);
 		if(getUser.username){
@@ -228,7 +228,7 @@ async function getCommunities(req, res, next){
 
 async function getRecentCommunities(req, res, next){
 	try{
-		let con = connection;
+		let con = await connection;
 		let getUser = await getUsernameInternal(req);
 		if(getUser.error){
 			res.status(404).send(getUser.error);
@@ -247,7 +247,7 @@ async function getRecentCommunities(req, res, next){
 
 async function getCommunity(req, res, next){
 	try {
-		let con = connection;
+		let con = await connection;
 		let final;
 		if(req.query.id){
 			let [rows, columns] = await con.execute('SELECT * FROM community WHERE id=?', [req.query.id]);
@@ -278,7 +278,7 @@ async function getCommunity(req, res, next){
 
 async function getHomePosts(req, res, next){
 	try {
-		let con = connection;
+		let con = await connection;
 		let final = {};
 		let [rows, columns] = await con.execute(
 			'SELECT * FROM home_post WHERE community_id=?',
@@ -301,7 +301,7 @@ async function getHomePosts(req, res, next){
 
 async function postHomePost(req, res, next){
 	try {
-		let con = connection;
+		let con = await connection;
 		let getUser = await getUsernameInternal(req);
 		if(getUser.error){
 			res.status(400).send(getUser.error);
@@ -330,7 +330,7 @@ async function postHomePost(req, res, next){
 
 async function getMember(req, res, next){
 	try {
-		let con = connection;
+		let con = await connection;
 		let getUser = await getUsernameInternal(req);
 		let username;
 		if(!req.query.communityid){
@@ -360,7 +360,7 @@ async function getMember(req, res, next){
 
 async function setMember(req, res, next){
 	try {
-		let con = connection;
+		let con = await connection;
 		let getUser = await getUsernameInternal(req);
 		let username = "";
 		if(!req.query.communityid){
@@ -385,7 +385,7 @@ async function setMember(req, res, next){
 
 async function deleteMember(req, res, next){
 	try {
-		let con = connection;
+		let con = await connection;
 		let getUser = await getUsernameInternal(req);
 		let username = "";
 		if(!req.query.communityid){
@@ -410,7 +410,7 @@ async function deleteMember(req, res, next){
 
 async function getAdmin(req, res, next){
 	try{
-		let con = connection;
+		let con = await connection;
 		let final = {admin: false};
 		let getUser = await getUsernameInternal(req);
 		let username;
@@ -439,7 +439,7 @@ async function getAdmin(req, res, next){
 
 async function setAdmin(req, res, next){
 	try{
-		let con = connection;
+		let con = await connection;
 		let username = req.body.username;
 		if(!req.query.communityid || !username){
 			res.status(400).send({error: "Bad request"});
@@ -458,7 +458,7 @@ async function setAdmin(req, res, next){
 
 async function deleteAdmin(req, res, next){
 	try{
-		let con = connection;
+		let con = await connection;
 		let username = req.body.username;dist
 		if(!req.query.communityid || !username){
 			res.status(400).send({error: "Bad request"});
@@ -477,7 +477,7 @@ async function deleteAdmin(req, res, next){
 
 async function updateBanner(req, res, next){
 	try {
-		let con = connection;
+		let con = await connection;
 		if(!req.query.communityid){
 			res.status(400).send({error: "Bad Request"});
 			return;
@@ -492,7 +492,7 @@ async function updateBanner(req, res, next){
 
 async function getFeedPosts(req, res, next){
 	try {
-		let con = connection;
+		let con = await connection;
 		let getUser = await getUsernameInternal(req);
 		let final = {};
 		if(getUser.error){
@@ -520,7 +520,7 @@ async function getFeedPosts(req, res, next){
 
 async function postFeedPost(req, res, next){
 	try {
-		let con = connection;
+		let con = await connection;
 		let getUser = await getUsernameInternal(req);
 		if(getUser.error){
 			res.status(400).send(getUser.error);
@@ -549,7 +549,7 @@ async function postFeedPost(req, res, next){
 
 async function getFollow(req, res, next){
 	try {
-		let con = connection;
+		let con = await connection;
 		let getUser = await getUsernameInternal(req);
 		if(getUser.error){
 			res.status(200).send(getUser.error);
@@ -577,7 +577,7 @@ async function getFollow(req, res, next){
 
 async function setFollow(req, res, next){
 	try {
-		let con = connection;
+		let con = await connection;
 		let getUser = await getUsernameInternal(req);
 		if(getUser.error){
 			res.status(400).send(getUser.error);
@@ -600,7 +600,7 @@ async function setFollow(req, res, next){
 
 async function deleteFollow(req, res, next){
 	try {
-		let con = connection;
+		let con = await connection;
 		let getUser = await getUsernameInternal(req);
 		if(getUser.error){
 			res.status(400).send(getUser.error);
@@ -623,7 +623,7 @@ async function deleteFollow(req, res, next){
 
 async function getSearch(req, res, next){
 	try{
-		let con = connection;
+		let con = await connection;
 		let final = {};
 		let [rows, columns] = await con.execute(
 			'SELECT username FROM user WHERE username LIKE ?',
@@ -644,7 +644,7 @@ async function getSearch(req, res, next){
 
 async function testing(req, res, next){
 	try {
-		let con = connection;
+		let con = await connection;
 		console.log(req.query)
 		let out = await con.execute(`SELECT * FROM user WHERE username = ?`, [req.query.username]);
 		res.status(200).send(out[0]);
