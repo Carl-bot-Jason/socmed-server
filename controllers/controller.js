@@ -9,7 +9,15 @@ async function getUsername(req, res, next){
 		console.log(req.headers);
 		console.log('--------------')
 		console.log(req.headers.cookie);
+		if(!req.headers.cookie){
+			res.status(409).send({error: 'Invalid cookies'});
+			return;
+		}	
 		let token = /token=(.+)/.exec(req.headers.cookie)[1];
+		if(!token){
+			res.status(409).send({error: 'Invalid cookies'});
+			return;
+		}
 		let decoded = await verifyJWT(token);
 		res = setHeaders(res);
 		if(decoded.payload){
@@ -42,13 +50,16 @@ async function postLogin(req, res, next){
 			return;
 		}
 		let jwt = await createJWT(req.body.username);
+		let cookieOpts = {};
+		if(process.env.DOMAIN !== 'localhost'){
+			cookieOpts['secure'] = true;
+			cookieOpts['sameSite'] = 'None';
+		}
 		res
 		.cookie('token', jwt, {
 			expires: new Date(Date.now() + 60 * 1000 * 86400),
 			path: "/",
-		//	domain: process.env.DOMAIN,
-			secure: true,
-			sameSite: 'None'
+			...cookieOpts
 		})
 		.status(200)
 		.send({response: "Login successful", token: jwt});
