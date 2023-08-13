@@ -4,6 +4,10 @@ require('dotenv').config();
 
 async function getUsername(req, res, next){
 	try{
+		console.log(req);
+		console.log('--------------------');
+		console.log(req.headers);
+		console.log('--------------')
 		console.log(req.headers.cookie);
 		let token = /token=(.+)/.exec(req.headers.cookie)[1];
 		let decoded = await verifyJWT(token);
