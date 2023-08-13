@@ -43,13 +43,13 @@ async function postLogin(req, res, next){
 		}
 		let jwt = await createJWT(req.body.username);
 		res
-		//.cookie('token', jwt, {
-		//	expires: new Date(Date.now() + 60 * 1000 * 86400),
-		//	path: "/",
+		.cookie('token', jwt, {
+			expires: new Date(Date.now() + 60 * 1000 * 86400),
+			path: "/",
 		//	domain: process.env.DOMAIN,
-		//	secure: true,
-		//	sameSite: 'None'
-		//})
+			secure: true,
+			sameSite: 'None'
+		})
 		.status(200)
 		.send({response: "Login successful", token: jwt});
 	}
