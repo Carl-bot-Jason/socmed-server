@@ -4,6 +4,7 @@ require('dotenv').config();
 
 async function getUsername(req, res, next){
 	try{
+		console.log(req.headers.cookie);
 		let token = /token=(.+)/.exec(req.headers.cookie)[1];
 		let decoded = await verifyJWT(token);
 		res = setHeaders(res);
@@ -102,7 +103,7 @@ async function getProfile(req, res, next){
 			return;
 		}
 		let username = req.query.user;
-		let [rows, columns] = await con.execute(
+		let [rows, _] = await con.execute(
 			'SELECT username, full_name, coins, create_date, profile_image_id, follower_count, following_count FROM user WHERE username=?',
 			[username]
 		);
@@ -235,7 +236,7 @@ async function getRecentCommunities(req, res, next){
 			res.status(404).send(getUser.error);
 			return;
 		}
-		let [rows, columns] = await con.execute(
+		let [rows, _] = await con.execute(
 			'SELECT recent_community.community_id, community.name FROM recent_community INNER JOIN community ON community.id=recent_community.community_id WHERE recent_community.username=? ORDER BY recent_community.time DESC LIMIT 5',
 			[getUser.username]
 		);
@@ -251,7 +252,7 @@ async function getCommunity(req, res, next){
 		let con = await connection();
 		let final;
 		if(req.query.id){
-			let [rows, columns] = await con.execute('SELECT * FROM community WHERE id=?', [req.query.id]);
+			let [rows, _] = await con.execute('SELECT * FROM community WHERE id=?', [req.query.id]);
 			if(!rows.length){
 				res.status(400).send({error: "community id invalid"});
 				return;
@@ -309,7 +310,7 @@ async function postHomePost(req, res, next){
 			res.status(400).send(getUser.error);
 			return;
 		}
-		let [rows, columns] = await con.execute(
+		let [rows, _] = await con.execute(
 			'INSERT INTO home_post VALUES (DEFAULT, ?, DEFAULT, DEFAULT, ?)',
 			[req.query.communityid, req.body.description]
 		);
@@ -345,7 +346,7 @@ async function getMember(req, res, next){
 			return;
 		}
 		username = req.query.user || getUser.username;
-		let [rows, columns] = await con.execute(
+		let [rows, _] = await con.execute(
 			'SELECT * FROM member WHERE community_id=? AND username=?',
 			[req.query.communityid, username]
 		);
@@ -429,7 +430,7 @@ async function getAdmin(req, res, next){
 			return;
 		}
 		username = req.query.user || getUser.username;
-		let [rows, columns] = await con.execute(
+		let [rows, _] = await con.execute(
 			'SELECT * FROM admin WHERE username=? AND community_id=?',
 			[username, req.query.communityid]
 		);
@@ -528,7 +529,7 @@ async function postFeedPost(req, res, next){
 			res.status(400).send(getUser.error);
 			return;
 		}
-		let [rows, columns] = await con.execute(
+		let [rows, _] = await con.execute(
 			'INSERT INTO feed_post VALUES (DEFAULT, ?, 0, ?, NOW(), ?)',
 			[req.query.communityid, getUser.username, req.body.caption]
 		);
@@ -562,7 +563,7 @@ async function getFollow(req, res, next){
 			res.status(200).send({error: "Bad Request"});
 			return;
 		}
-		let [rows, columns] = await con.execute(
+		let [rows, _] = await con.execute(
 			'SELECT * FROM follow WHERE username=? AND follows=?',
 			[getUser.username, req.query.username]
 		);
