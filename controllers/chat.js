@@ -21,6 +21,7 @@ async function getPrivateMessages(req, res, next){
 	}
 }
 
+// NOT USED
 async function postPrivateMessage(req, res, next){
 	try {
 		let con = await connection;
@@ -62,6 +63,7 @@ async function getCommunityMessages(req, res, next){
 	}
 }
 
+// NOT USED
 async function postCommunityMessage(req, res, next){
 	try {
 		let con = await connection;

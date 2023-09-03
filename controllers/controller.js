@@ -216,12 +216,12 @@ async function getCommunities(req, res, next){
 				final.popular = popular[0];
 			}
 			else{
-				// let recommended = await con.execute('CALL getRecommendedCommunities(?)', [username]);
-				// final.recommended = recommended[0][0];
+				let recommended = await con.execute('SELECT * FROM community WHERE id NOT IN (SELECT community_id FROM member WHERE username=?) ORDER BY RAND() LIMIT 15', [username]);
+				final.recommended = recommended[0];
 				let discover = await con.execute('SELECT * FROM community ORDER BY create_date DESC LIMIT 10');
 				final.discover = discover[0];
-				// let popular = await con.execute('CALL getPopularCommunities(?)', [username]);
-				// final.popular = popular[0][0];
+				let popular = await con.execute('SELECT * FROM community WHERE id NOT IN (SELECT community_id FROM member WHERE username=?) ORDER BY member_count DESC LIMIT 15', [username]);
+				final.popular = popular[0];
 			}
 			res.status(200).json(final);
 		}
