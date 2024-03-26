@@ -9,8 +9,9 @@ async function connect(){
     user     : process.env.USERNAME,
     password : process.env.PASSWORD,
     database : process.env.DATABASE,
+    port: process.env.DBPORT,
     ssl: {
-      ca: await fs.readFile(path.resolve(__dirname, '../cacert.pem'), 'utf-8')
+      ca: await fs.readFile(path.resolve(__dirname, '../ca_aiven.pem'), 'utf-8')
     }
   });
   return connection;
